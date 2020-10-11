@@ -1,5 +1,5 @@
 # SLED
-Sled is a simple command line tool using terraform, python, and several libraries that simplifies the data migration process to snowflake by helping to automate:
+Sled is a simple command line tool using terraform, python, and several libraries to simplify the data migration process to snowflake by helping to automate:
 
 - User and Role Creation
 - Schema Migration
