@@ -27,6 +27,31 @@
                                                   users = 
                                                 }
                                                 
+                                                "DEV_ROLE" = {
+                                                  comment = "Accessible to PUBLIC, default to devs and all users. Access to DEV_WH and DEV_DB objects."
+                                                  users = 
+                                                }
+                                                
+                                                "QA_ROLE" = {
+                                                  comment = "For QA access, QA_WH warehouse and QA_DB object access."
+                                                  users = 
+                                                }
+                                                
+                                                "STG_ROLE" = {
+                                                  comment = "For STG access, can be given and revoked as needed to devs or qas. Medium instance wh, access to STG_DB objects."
+                                                  users = 
+                                                }
+                                                
+                                                "PROD_ROLE" = {
+                                                  comment = "Production role is for prod ETL flows only. Granted to streams and tasks, PROD_DB, and using PROD_WH Large Instance."
+                                                  users = 
+                                                }
+                                                
+                                                "ANALYTICS_ROLE" = {
+                                                  comment = "This is a role for tableau and/or analysts, large instance type, access to various layers."
+                                                  users = 
+                                                }
+                                                
               }
             }
             
