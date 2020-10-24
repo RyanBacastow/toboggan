@@ -1,0 +1,118 @@
+[
+    {
+        "name": "RAW_LAYER",
+        "comment": "The raw layer represents data populated directly from the datalake either from snowpipe or external tables. Columns include a variant type and a metadata filename column.",
+        "database": "DEV_DB",
+        "usage_access": [],
+        "all_access": [
+            "DEV_ROLE"
+        ]
+    },
+    {
+        "name": "RAW_LAYER",
+        "comment": "The raw layer represents data populated directly from the datalake either from snowpipe or external tables. Columns include a variant type and a metadata filename column.",
+        "database": "QA_DB",
+        "usage_access": [],
+        "all_access": [
+            "QA_ROLE"
+        ]
+    },
+    {
+        "name": "RAW_LAYER",
+        "comment": "The raw layer represents data populated directly from the datalake either from snowpipe or external tables. Columns include a variant type and a metadata filename column.",
+        "database": "STG_DB",
+        "usage_access": [],
+        "all_access": [
+            "STG_ROLE"
+        ]
+    },
+    {
+        "name": "RAW_LAYER",
+        "comment": "The raw layer represents data populated directly from the datalake either from snowpipe or external tables. Columns include a variant type and a metadata filename column.",
+        "database": "PROD_DB",
+        "usage_access": [],
+        "all_access": [
+            "PROD_ROLE"
+        ]
+    },
+    {
+        "name": "REFINED_LAYER",
+        "comment": "The refined layer holds defined schemas (defined by ddls made by devs) and is populated from transformations done on raw data from RAW_LAYER. Feeds downstream analytics, views, and other objects accessible to users.",
+        "database": "DEV_DB",
+        "usage_access": [],
+        "all_access": [
+            "DEV_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "REFINED_LAYER",
+        "comment": "The refined layer holds defined schemas (defined by ddls made by devs) and is populated from transformations done on raw data from RAW_LAYER. Feeds downstream analytics, views, and other objects accessible to users.",
+        "database": "QA_DB",
+        "usage_access": [],
+        "all_access": [
+            "QA_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "REFINED_LAYER",
+        "comment": "The refined layer holds defined schemas (defined by ddls made by devs) and is populated from transformations done on raw data from RAW_LAYER. Feeds downstream analytics, views, and other objects accessible to users.",
+        "database": "STG_DB",
+        "usage_access": [],
+        "all_access": [
+            "STG_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "REFINED_LAYER",
+        "comment": "The refined layer holds defined schemas (defined by ddls made by devs) and is populated from transformations done on raw data from RAW_LAYER. Feeds downstream analytics, views, and other objects accessible to users.",
+        "database": "PROD_DB",
+        "usage_access": [],
+        "all_access": [
+            "PROD_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "ANALYTICS_LAYER",
+        "comment": "This layer can be used to create views and a variety of tables needed for downstream processes such as tableau or ad hoc reporting.",
+        "database": "DEV_DB",
+        "usage_access": [],
+        "all_access": [
+            "ANALYTICS_ROLE",
+            "DEV_ROLE"
+        ]
+    },
+    {
+        "name": "ANALYTICS_LAYER",
+        "comment": "This layer can be used to create views and a variety of tables needed for downstream processes such as tableau or ad hoc reporting.",
+        "database": "QA_DB",
+        "usage_access": [],
+        "all_access": [
+            "QA_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "ANALYTICS_LAYER",
+        "comment": "This layer can be used to create views and a variety of tables needed for downstream processes such as tableau or ad hoc reporting.",
+        "database": "STG_DB",
+        "usage_access": [],
+        "all_access": [
+            "STG_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    },
+    {
+        "name": "ANALYTICS_LAYER",
+        "comment": "This layer can be used to create views and a variety of tables needed for downstream processes such as tableau or ad hoc reporting.",
+        "database": "PROD_DB",
+        "usage_access": [],
+        "all_access": [
+            "PROD_ROLE",
+            "ANALYTICS_ROLE"
+        ]
+    }
+]

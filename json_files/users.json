@@ -1,0 +1,73 @@
+[
+    {
+        "name": "DEV_USER",
+        "warehouse": "DEV_WH",
+        "namespace": "DEV_DB.RAW_LAYER",
+        "roles": [
+            "PUBLIC",
+            "DEV_ROLE"
+        ],
+        "default_role": "DEV_ROLE"
+    },
+    {
+        "name": "QA_USER",
+        "warehouse": "QA_WH",
+        "namespace": "QA_DB.RAW_LAYER",
+        "roles": [
+            "PUBLIC",
+            "QA_ROLE"
+        ],
+        "default_role": "QA_ROLE"
+    },
+    {
+        "name": "STG_USER",
+        "warehouse": "STG_WH",
+        "namespace": "STG_DB.RAW_LAYER",
+        "roles": [
+            "PUBLIC",
+            "STG_ROLE"
+        ],
+        "default_role": "STG_ROLE"
+    },
+    {
+        "name": "PROD_USER",
+        "warehouse": "PROD_WH",
+        "namespace": "PROD_DB.RAW_LAYER",
+        "roles": [
+            "PUBLIC",
+            "PROD_ROLE"
+        ],
+        "default_role": "PROD_ROLE"
+    },
+    {
+        "name": "ANALYTICS_USER",
+        "warehouse": "ANALYTICS_WH",
+        "namespace": "PROD_DB.REFINED_LAYER",
+        "roles": [
+            "PUBLIC",
+            "ANALYTICS_ROLE"
+        ],
+        "default_role": "ANALYTICS_ROLE"
+    },
+    {
+        "name": "TABLEAU_USER",
+        "warehouse": "ANALYTICS_WH",
+        "namespace": "PROD_DB.REFINED_LAYER",
+        "roles": [
+            "PUBLIC",
+            "ANALYTICS_ROLE",
+            "PROD_ROLE"
+        ],
+        "default_role": "ANALYTICS_ROLE"
+    },
+    {
+        "name": "TMO_USER",
+        "warehouse": "TMO_WH",
+        "namespace": "PROD_DB.REFINED_LAYER",
+        "roles": [
+            "PUBLIC",
+            "TMO_ROLE"
+        ],
+        "default_role": "TMO_ROLE"
+    }
+]
