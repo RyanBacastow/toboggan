@@ -6,7 +6,8 @@
         "usage_access": [],
         "all_access": [
             "DEV_ROLE"
-        ]
+        ],
+        "namespace": "DEV_DB.RAW_LAYER"
     },
     {
         "name": "RAW_LAYER",
@@ -15,7 +16,8 @@
         "usage_access": [],
         "all_access": [
             "QA_ROLE"
-        ]
+        ],
+        "namespace": "QA_DB.RAW_LAYER"
     },
     {
         "name": "RAW_LAYER",
@@ -24,7 +26,8 @@
         "usage_access": [],
         "all_access": [
             "STG_ROLE"
-        ]
+        ],
+        "namespace": "STG_DB.RAW_LAYER"
     },
     {
         "name": "RAW_LAYER",
@@ -33,7 +36,8 @@
         "usage_access": [],
         "all_access": [
             "PROD_ROLE"
-        ]
+        ],
+        "namespace": "PROD_DB.RAW_LAYER"
     },
     {
         "name": "REFINED_LAYER",
@@ -43,7 +47,8 @@
         "all_access": [
             "DEV_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "DEV_DB.REFINED_LAYER"
     },
     {
         "name": "REFINED_LAYER",
@@ -53,7 +58,8 @@
         "all_access": [
             "QA_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "QA_DB.REFINED_LAYER"
     },
     {
         "name": "REFINED_LAYER",
@@ -63,7 +69,8 @@
         "all_access": [
             "STG_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "STG_DB.REFINED_LAYER"
     },
     {
         "name": "REFINED_LAYER",
@@ -73,7 +80,8 @@
         "all_access": [
             "PROD_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "PROD_DB.REFINED_LAYER"
     },
     {
         "name": "ANALYTICS_LAYER",
@@ -83,7 +91,8 @@
         "all_access": [
             "ANALYTICS_ROLE",
             "DEV_ROLE"
-        ]
+        ],
+        "namespace": "DEV_DB.ANALYTICS_LAYER"
     },
     {
         "name": "ANALYTICS_LAYER",
@@ -93,7 +102,8 @@
         "all_access": [
             "QA_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "QA_DB.ANALYTICS_LAYER"
     },
     {
         "name": "ANALYTICS_LAYER",
@@ -103,7 +113,8 @@
         "all_access": [
             "STG_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "STG_DB.ANALYTICS_LAYER"
     },
     {
         "name": "ANALYTICS_LAYER",
@@ -113,6 +124,7 @@
         "all_access": [
             "PROD_ROLE",
             "ANALYTICS_ROLE"
-        ]
+        ],
+        "namespace": "PROD_DB.ANALYTICS_LAYER"
     }
 ]

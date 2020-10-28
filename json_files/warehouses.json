@@ -47,5 +47,12 @@
         "auto_resume": "true",
         "auto_suspend": "60",
         "comment": "Delete me"
+    },
+    {
+        "name": "INT_WH",
+        "warehouse_size": "MEDIUM",
+        "auto_resume": "true",
+        "auto_suspend": "60",
+        "comment": "This warehouse will handle integrated layer workflows"
     }
 ]

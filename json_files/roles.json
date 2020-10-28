@@ -42,5 +42,9 @@
     {
         "name": "TMO_ROLE",
         "comment": "This role is for sharing and interfacing with the TMO External Snowflake acct."
+    },
+    {
+        "name": "INT_ROLE",
+        "comment": "Integrated role for accessing objects in the integrated layer schemas using INT_WH. For assignment to INT_USER."
     }
 ]

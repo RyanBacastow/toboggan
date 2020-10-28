@@ -17,7 +17,7 @@ resource "snowflake_warehouse" "warehouse_terraform" {
 warehouse_template_sql = jinja2.Template(
 """
 
-CREATE OR REPLACE WAREHOUSE IF NOT EXISTS {{name}}
+CREATE WAREHOUSE IF NOT EXISTS {{name}}
 WITH
   WAREHOUSE_SIZE = '{{warehouse_size}}'
   AUTO_SUSPEND = {{auto_suspend}}
@@ -87,6 +87,8 @@ role_template_sql = jinja2.Template(
 
 CREATE ROLE IF NOT EXISTS {{name}}
 COMMENT = '{{comment}}';
+
+GRANT ROLE {{name}} TO ROLE SYSADMIN;
 
 """)
 
@@ -203,5 +205,49 @@ user_insert_template_tf = jinja2.Template(
   warehouse  = "{{warehouse}}"
 }
 
+"""
+)
+
+storage_integration_template_aws_sql = jinja2.Template(
+"""
+
+CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = S3
+  ENABLED = TRUE
+  STORAGE_AWS_ROLE_ARN = '{{iam_role}}'
+  STORAGE_ALLOWED_LOCATIONS = ('*')
+  COMMENT = '{{comment}}';
+
+"""
+)
+
+storage_integration_template_azure_sql = jinja2.Template(
+"""
+
+CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = AZURE
+  ENABLED = TRUE
+  AZURE_TENANT_ID= '{{azure_tenant_id}}'
+  STORAGE_ALLOWED_LOCATIONS = ('*')
+  COMMENT = '{{comment}}';
+
+"""
+)
+
+table_template_sql = jinja2.Template(
+"""
+
+USE {{namespace}};
+CREATE TABLE {{name}} (
+{{table_blob}});
+
+"""
+)
+
+table_insert_template_sql = jinja2.Template(
+"""
+{{column_name}} {{column_type}},
 """
 )

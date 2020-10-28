@@ -1,0 +1,74 @@
+[
+    {
+        "name": "RAW_APPTENTIVE_ALL_SURVEY",
+        "namespaces": [
+            "DEV_DB.RAW_LAYER",
+            "QA_DB.RAW_LAYER",
+            "STG_DB.RAW_LAYER",
+            "PROD_DB.RAW_LAYER"
+        ],
+        "columns": [
+            {
+                "column_name": "RAW_VARIANT",
+                "column_type": "VARIANT"
+            },
+            {
+                "column_name": "FILENAME",
+                "column_type": "VARCHAR"
+            }
+        ],
+        "comment": "Raw layer table."
+    },
+    {
+        "name": "APPTENTIVE_ALL_SURVEY",
+        "namespaces": [
+            "DEV_DB.REFINED_LAYER",
+            "QA_DB.REFINED_LAYER",
+            "STG_DB.REFINED_LAYER",
+            "PROD_DB.REFINED_LAYER"
+        ],
+        "columns": [
+            {
+                "column_name": "ACTIVE",
+                "column_type": "BOOLEAN"
+            },
+            {
+                "column_name": "NAME",
+                "column_type": "VARCHAR"
+            },
+            {
+                "column_name": "TITLE",
+                "column_type": "VARCHAR"
+            },
+            {
+                "column_name": "DESCRIPTION",
+                "column_type": "VARCHAR"
+            },
+            {
+                "column_name": "CREATED_AT",
+                "column_type": "TIMESTAMP"
+            },
+            {
+                "column_name": "RUN_ID",
+                "column_type": "NUMBER"
+            },
+            {
+                "column_name": "RECORD_INSERT_TIMESTAMP",
+                "column_type": "TIMESTAMP"
+            },
+            {
+                "column_name": "CREATED_DT",
+                "column_type": "DATE"
+            },
+            {
+                "column_name": "DEVICE",
+                "column_type": "VARCHAR"
+            },
+            {
+                "column_name": "ID",
+                "column_type": "VARCHAR"
+            }
+        ],
+        "comment": "Refined Layer Schema"
+    }
+]
