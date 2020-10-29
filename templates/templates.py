@@ -239,8 +239,7 @@ CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
 table_template_sql = jinja2.Template(
 """
 
-USE {{namespace}};
-CREATE TABLE {{name}} (
+CREATE TABLE IF NOT EXISTS {{namespace}}.{{name}} (
 {{table_blob}});
 
 """

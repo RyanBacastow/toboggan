@@ -1,0 +1,8 @@
+
+
+CREATE WAREHOUSE IF NOT EXISTS TEST_WH
+WITH
+  WAREHOUSE_SIZE = 'XSMALL'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = true
+  COMMENT = 'this is a test to show json structure.';

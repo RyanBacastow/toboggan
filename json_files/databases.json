@@ -1,22 +1,6 @@
 [
     {
-        "name": "DEV_DB",
-        "comment": "This database is for dev schemas and uses dev wh workflow."
-    },
-    {
-        "name": "QA_DB",
-        "comment": "This database is for qa schemas and uses qa wh workflow."
-    },
-    {
-        "name": "STG_DB",
-        "comment": "This database is for stg schemas and uses stg wh workflow."
-    },
-    {
-        "name": "PROD_DB",
-        "comment": "This database is for prod schemas and uses prod wh workflow."
-    },
-    {
-        "name": "ANALYTICS_DB",
-        "comment": "This database is for analytics, sandbox, view, and other schemas and uses analytical wh workflow."
+        "name": "TEST_DB",
+        "comment": "this is a test db to show json structure"
     }
 ]
