@@ -1,6 +1,6 @@
 
 
 CREATE ROLE IF NOT EXISTS TEST_ROLE
-COMMENT = 'this is a test role to show json structure';
+COMMENT = 'testing role';
 
 GRANT ROLE TEST_ROLE TO ROLE SYSADMIN;

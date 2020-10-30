@@ -1,12 +1,10 @@
 [
     {
         "name": "TEST_SCHEMA",
-        "comment": "this is a test schema to show json structure",
+        "comment": "test schema deployment",
         "database": "TEST_DB",
         "namespace": "TEST_DB.TEST_SCHEMA",
-        "usage_access": [
-            "PUBLIC"
-        ],
+        "usage_access": [],
         "all_access": [
             "TEST_ROLE"
         ]

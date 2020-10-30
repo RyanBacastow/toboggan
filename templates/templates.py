@@ -239,8 +239,7 @@ CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
 table_template_sql = jinja2.Template(
 """
 
-CREATE TABLE IF NOT EXISTS {{namespace}}.{{name}} (
-{{table_blob}});
+CREATE TABLE IF NOT EXISTS {{namespace}}.{{name}} ({{table_blob}});
 
 """
 )
@@ -248,5 +247,11 @@ CREATE TABLE IF NOT EXISTS {{namespace}}.{{name}} (
 table_insert_template_sql = jinja2.Template(
 """
 {{column_name}} {{column_type}},
+"""
+)
+
+teardown_template_sql = jinja2.Template(
+"""
+DROP {{object_type}} IF EXISTS {{name}};
 """
 )

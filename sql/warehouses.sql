@@ -3,6 +3,6 @@
 CREATE WAREHOUSE IF NOT EXISTS TEST_WH
 WITH
   WAREHOUSE_SIZE = 'XSMALL'
-  AUTO_SUSPEND = 60
+  AUTO_SUSPEND = 300
   AUTO_RESUME = true
-  COMMENT = 'this is a test to show json structure.';
+  COMMENT = 'Test warehouse deployment';

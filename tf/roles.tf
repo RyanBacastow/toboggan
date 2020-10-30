@@ -5,7 +5,7 @@ locals {
    
 
 "TEST_ROLE" = {
-  comment = "this is a test role to show json structure"
+  comment = "testing role"
   users = ["TEST_USER"]
 }
 

@@ -10,10 +10,10 @@
                 "column_type": "NUMBER"
             },
             {
-                "column_name": "TEST_COLUMN_STR",
+                "column_name": "TEST_COLUMN_2",
                 "column_type": "VARCHAR"
             }
         ],
-        "comment": "this is a test table to show json structure"
+        "comment": "testing table and column deployment"
     }
 ]

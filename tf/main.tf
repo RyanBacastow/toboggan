@@ -11,7 +11,7 @@ resource "snowflake_warehouse" "warehouse_terraform" {
   name              =   "TEST_WH"
   warehouse_size    =   "XSMALL"
   auto_resume       =   true
-  auto_suspend      =   60
-  comment           =   "this is a test to show json structure."
+  auto_suspend      =   300
+  comment           =   "Test warehouse deployment"
 }
 
