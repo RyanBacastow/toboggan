@@ -208,34 +208,6 @@ user_insert_template_tf = jinja2.Template(
 """
 )
 
-storage_integration_template_aws_sql = jinja2.Template(
-"""
-
-CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
-  TYPE = EXTERNAL_STAGE
-  STORAGE_PROVIDER = S3
-  ENABLED = TRUE
-  STORAGE_AWS_ROLE_ARN = '{{iam_role}}'
-  STORAGE_ALLOWED_LOCATIONS = ('*')
-  COMMENT = '{{comment}}';
-
-"""
-)
-
-storage_integration_template_azure_sql = jinja2.Template(
-"""
-
-CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
-  TYPE = EXTERNAL_STAGE
-  STORAGE_PROVIDER = AZURE
-  ENABLED = TRUE
-  AZURE_TENANT_ID= '{{azure_tenant_id}}'
-  STORAGE_ALLOWED_LOCATIONS = ('*')
-  COMMENT = '{{comment}}';
-
-"""
-)
-
 table_template_sql = jinja2.Template(
 """
 
@@ -253,5 +225,77 @@ table_insert_template_sql = jinja2.Template(
 teardown_template_sql = jinja2.Template(
 """
 DROP {{object_type}} IF EXISTS {{name}};
+"""
+)
+
+aws_storage_integration_template = jinja2.Template(
+"""
+CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = S3
+  ENABLED = {{enabled}}
+  STORAGE_AWS_ROLE_ARN = '{{integration_str}}'
+  STORAGE_ALLOWED_LOCATIONS = {{storage_allowed_locations_str}}
+  {%- if comment %}
+  COMMENT = '{{comment}}'
+  {%- endif -%}
+  {% if storage_blocked_locations_str %}
+  STORAGE_BLOCKED_LOCATIONS = {{storage_blocked_locations_str}}
+  {%- endif -%}
+
+"""
+)
+
+external_stage_template = jinja2.Template(
+"""
+USE SCHEMA {{database_name}}.{{schema_name}};
+CREATE stage IF NOT EXISTS {{name}}
+ storage_integration = {{integration}}
+ url='{{url}}'
+ file_format = (TYPE = {{file_format}});
+
+""")
+
+pipe_template_sql = jinja2.Template(
+"""
+USE SCHEMA {{namespace}};
+create pipe IF NOT EXISTS {{name}} auto_ingest={{auto_ingest}} as
+ copy into {{full_namespace}} {{column_str}}
+ from (
+   {{query}} FROM @{{stage}})
+ file_format = (type = '{{file_format}}');
+""")
+
+external_table_template_sql = jinja2.Template(
+"""
+USE SCHEMA {{namespace}};
+create or replace external table {{name}}
+  with location = @{{stage}}/
+  auto_refresh = {{auto_refresh}}
+  file_format = (type = '{{file_format}}');
+"""
+)
+
+stream_template_sql = jinja2.Template(
+"""
+CREATE OR REPLACE STREAM {{name}} on table {{full_namespace}};
+"""
+)
+
+task_template_sql = jinja2.Template(
+"""
+CREATE TASK {{name}}
+    WAREHOUSE  = {{warehouse_name}}
+    COMMENT = '{{comment}}'
+    SCHEDULE = '{{schedule}}'
+  WHEN
+    SYSTEM$STREAM_HAS_DATA('{{stream}}')
+  AS INSERT INTO {{full_namespace}}(
+  {{columns}}
+  )
+    {{select_statement}};
+
+ALTER TASK IF EXISTS {{name}} RESUME;
+
 """
 )
