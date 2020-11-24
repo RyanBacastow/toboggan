@@ -248,8 +248,7 @@ CREATE STORAGE INTEGRATION IF NOT EXISTS {{name}}
 
 external_stage_template = jinja2.Template(
 """
-USE SCHEMA {{database_name}}.{{schema_name}};
-CREATE stage IF NOT EXISTS {{name}}
+CREATE stage IF NOT EXISTS {{namespace}}.{{name}}
  storage_integration = {{integration}}
  url='{{url}}'
  file_format = (TYPE = {{file_format}});
@@ -258,19 +257,17 @@ CREATE stage IF NOT EXISTS {{name}}
 
 pipe_template_sql = jinja2.Template(
 """
-USE SCHEMA {{namespace}};
-create pipe IF NOT EXISTS {{name}} auto_ingest={{auto_ingest}} as
+create pipe IF NOT EXISTS {{namespace}}.{{name}} auto_ingest={{auto_ingest}} as
  copy into {{full_namespace}} {{column_str}}
  from (
-   {{query}} FROM @{{stage}})
+   {{query}} FROM @{{namespace}}.{{stage}})
  file_format = (type = '{{file_format}}');
 """)
 
 external_table_template_sql = jinja2.Template(
 """
-USE SCHEMA {{namespace}};
-create or replace external table {{name}}
-  with location = @{{stage}}/
+create or replace external table {{namespace}}.{{name}}
+  with location = @{{namespace}}.{{stage}}/
   auto_refresh = {{auto_refresh}}
   file_format = (type = '{{file_format}}');
 """
@@ -278,24 +275,24 @@ create or replace external table {{name}}
 
 stream_template_sql = jinja2.Template(
 """
-CREATE OR REPLACE STREAM {{name}} on table {{full_namespace}};
+CREATE STREAM IF NOT EXISTS {{namespace}}.{{name}} on table {{full_namespace}} APPEND_ONLY={{append_only}};
 """
 )
 
 task_template_sql = jinja2.Template(
 """
-CREATE TASK {{name}}
+CREATE TASK {{namespace}}.{{name}}
     WAREHOUSE  = {{warehouse_name}}
     COMMENT = '{{comment}}'
     SCHEDULE = '{{schedule}}'
   WHEN
-    SYSTEM$STREAM_HAS_DATA('{{stream}}')
+    SYSTEM$STREAM_HAS_DATA('{{namespace}}.{{stream}}')
   AS INSERT INTO {{full_namespace}}(
   {{columns}}
   )
     {{select_statement}};
 
-ALTER TASK IF EXISTS {{name}} RESUME;
+ALTER TASK IF EXISTS {{namespace}}.{{name}} RESUME;
 
 """
 )

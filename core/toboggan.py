@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
-
-
 import jinja2
 import json
 import re
@@ -11,18 +8,6 @@ import os
 import snowflake as sf
 from sqlalchemy import create_engine
 from templates.templates import *
-
-# #### TODO:
-# - Create more robust Edit Mode to add resources or change existing associations.
-# - Create integrations, pipes, shares intake and creation.
-# - Create streams, and tasks intake and creation.
-# - Create import from query logic.
-# - Remove Terraaform components.
-# - Use decorators to print out_str.
-# - Create query converter from athena, mysql, postgres and terradata.
-
-# In[11]:
-
 
 class Toboggan:
     """
@@ -67,6 +52,7 @@ class Toboggan:
         self.streams = []
         self.tasks = []
         self.arns = []
+        self.external_tables = []
         
         self.account_info = {}
         
@@ -687,6 +673,52 @@ class Toboggan:
                 
         return tables
     
+    def intake_external_tables(self):
+        """
+        USE SCHEMA {{namespace}};
+        create or replace external table {{name}}
+          with location = @{{stage}}/
+          auto_refresh = {{auto_refresh}}
+          file_format = (type = '{{file_format}}');
+        """
+        print(f"\n{self.sep}EXTERNAL TABLES{self.sep}\n")
+        print("Add external table objects.\n")
+        tables = self.external_tables.copy()
+        while True:
+            ans = self.yes_no(f"Do you want to add an external table?")
+            
+            if ans:
+                out_dict = {"name": "", "namespace": "", "file_format": "", "stage": "", "auto_refresh": "TRUE", "comment": ""}
+                name = self.clean_text(input("\nWhat is the external table name?\n"), mode='upper')
+                if name in [x['name'] for x in tables]:
+                    print("\nTable already added, please use unique names.\n")
+                    continue
+                elif name == '':
+                    print("\nPlease use valid characters.\n")
+                    continue
+                else:
+                    namespace = self.make_choices(self.namespaces, f"What namespace does {name} belong to?")
+                    out_dict['namespace'] = namespace
+
+                    stage = self.make_choices(self.stage_names, "What is the stage name this will attach to?", mode="help")
+                    out_dict['stage'] = stage
+                    
+                    auto_refresh = self.make_choices(['TRUE', 'FALSE'], f"Should auto-refresh be enabled for this external table?")
+                    out_dict['auto_refresh'] = auto_refresh
+                    
+                    file_format = self.make_choices(['PARQUET', 'JSON', 'AVRO', 'CSV', 'ORC', 'XML'], f"What is the file type for {name}?")
+                    out_dict['file_format'] = file_format
+                    
+                    comment = input(f"\nLeave a descriptive comment to describe {name}:\n")
+                    out_dict['comment'] = comment
+
+                    tables.append(out_dict)
+                    
+            else:
+                break
+                
+        return tables
+    
     def add_integration_locations(self, mode="allowed", cloud="s3"):
         """
         STORAGE_ALLOWED_LOCATIONS = ('<cloud>://<bucket>/<path>/', '<cloud>://<bucket>/<path>/')
@@ -724,7 +756,7 @@ class Toboggan:
         storage_integrations = self.storage_integrations.copy()
         while True:
             ans = self.yes_no("Do you want to add a storage integration?")
-            
+
             if ans:
                 out_dict = {"name": "",
                             "cloud": "",
@@ -736,7 +768,7 @@ class Toboggan:
                             "storage_blocked_locations_str": None,
                             "comment": None
                            }
-                
+
                 name = self.clean_text(input("\nWhat is the storage integration name?\n"), mode='upper')
                 if name in [x['name'] for x in storage_integrations]:
                     print("\nIntegration already added, please use unique names.\n")
@@ -782,24 +814,25 @@ class Toboggan:
                     out_dict['comment'] = comment if comment else None
                     storage_integrations.append(out_dict)
             else:
+                self.storage_integration_names = [x['name'] for x in self.storage_integrations]
                 return storage_integrations
 
     def intake_stages(self):
         """
         https://docs.snowflake.com/en/user-guide/data-load-s3-create-stage.html
-        
+
         CREATE OR REPLACE stage {{name}}
          storage_integration = {{integration}}
          url='{{url}}'
          file_format = (TYPE = {{file_format}});
-         
+
         """
         print(f"\n{self.sep}EXTERNAL STAGES{self.sep}\n")
         print("Add storage external stage objects.\n")
         stages = self.stages.copy()
         while True:
             ans = self.yes_no("Do you want to add a stage?")
-            
+
             if ans:
                 out_dict = {"name": "",
                             "integration": "",
@@ -808,9 +841,9 @@ class Toboggan:
                             "database_name": "",
                             "schema_name": ""
                            }
-                
+
                 name = self.clean_text(input("\nWhat is the external stage name?\n"), mode='upper')
-                
+
                 if name in [x['name'] for x in stages]:
                     print("\nIntegration already added, please use unique names.\n")
                     continue
@@ -819,27 +852,28 @@ class Toboggan:
                     continue
                 else:
                     out_dict['name'] = name
-                    
+
                     integration = self.make_choices(self.storage_integration_names, "What is the storage integration name?", mode="help")
                     out_dict['integration'] = integration
-                    
+
                     url = input(f"What is the url path to the directory (s3://bucket/dir/subdir; azure://bucket/dir/subdir)")
                     out_dict['url'] = url
-                    
+
                     file_format = self.make_choices(['PARQUET', 'JSON', 'AVRO', 'CSV', 'ORC', 'XML'], f"What is the file type for {name}?")
                     out_dict['file_format'] = file_format
-                    
+
                     namespace = self.make_choices(self.namespaces, "Which namespace should the stage be created under?")
                     database_name = namespace.split(".")[0]
                     schema_name = namespace.split(".")[1]
-                    
+
                     out_dict['database_name'] = database_name
                     out_dict['schema_name'] = schema_name
-                    
+
                     stages.append(out_dict)
             else:
+                self.stage_names = [x['name'] for x in self.stages]
                 return stages
-    
+
     def intake_pipes(self):
         """
          create or replace pipe {{name}} auto_ingest={{auto_ingest}} as
@@ -853,21 +887,22 @@ class Toboggan:
         pipes = self.pipes.copy()
         while True:
             ans = self.yes_no("Do you want to add a pipe?")
-            
+
             if ans:
                 out_dict = {
                             "name": "",
                             "auto_ingest": "",
                             "namespace": "",
+                            "full_namespace": "",
                             "query": "",
                             "stage": "",
                             "file_format": "",
                             "columns": [],
                             "column_str": ""
                            }
-                
+
                 name = self.clean_text(input("\nWhat is the pipe name?\n"), mode='upper')
-                
+
                 if name in [x['name'] for x in pipes]:
                     print("\nPipe already added, please use unique names.\n")
                     continue
@@ -876,45 +911,47 @@ class Toboggan:
                     continue
                 else:
                     out_dict['name'] = name
-                    
+
                     stage = self.make_choices(self.stage_names, "What is the stage name?", mode="help")
                     out_dict['stage'] = stage
-                    
+
                     auto_ingest = self.make_choices(['TRUE', 'FALSE'], f"Should auto-ingest be enabled for this pipe?")
                     out_dict['auto_ingest'] = auto_ingest
-                    
+
                     table_name = self.make_choices(self.table_names, f"Which table should this pipe attach to?")
-                    
+
                     table = next((item for item in self.tables if item["name"] == table_name), None)
-                    
+
                     if table == None:
                         continue
-                    
+
                     namespace = self.make_choices(table['namespaces'], f"What database and schema does {name} belong to?")
-                    
+
                     full_namespace = f"{namespace}.{table_name}"
-                    out_dict['namespace'] = full_namespace
-                    
+                    out_dict['namespace'] = namespace
+                    out_dict['full_namespace'] = full_namespace
+
                     out_dict['columns'] = table['columns']
 
                     out_dict['column_str'] = "(" + ', '.join([f"{x['column_name']}" for x in table['columns']]) + ")"
-                    
+
                     query = input(f"What is the query you'd like to run in the pipe definition?")
                     out_dict['query'] = query
-                    
+
                     file_format = self.make_choices(['PARQUET', 'JSON', 'AVRO', 'CSV', 'ORC', 'XML'], f"What is the file type for {name}?")
                     out_dict['file_format'] = file_format
-                    
+
                     pipes.append(out_dict)
             else:
+                self.pipe_names = [x['name'] for x in self.pipes]
                 return pipes
-    
+
     def intake_streams(self):
         pass
-    
+
     def intake_tasks(self):
         pass
-    
+
     def choose_mode(self):
         while True:
             mode = self.make_choices(['CREATE', 'IMPORT'], "Which mode would you like to run in?", mode='help')
@@ -927,7 +964,7 @@ class Toboggan:
                 continue
             else:
                 return mode
-    
+
     def select_resource_name(self, resource, edit_type, l):
         while True:
             resource = self.make_choices(l, f"Which {resource.lower()} would you like to {edit_type.lower()}?", mode='help')
@@ -938,7 +975,7 @@ class Toboggan:
                 return False
             else:
                 return resource
-            
+
     def delete_resource(self, resource_name, in_list, key_field, change_type='delete', match=False, nested=False, preserve=True):
         i = 0
         for item in in_list:
@@ -952,11 +989,11 @@ class Toboggan:
                         if nested_item == resource_name:
                             item[key_field].remove(nested_item)
                             print(f"Deleted {resource_name} in {item}.\n")
-                            
+
             if not preserve:
                 if len(item[key_field]) < 1:
                     del in_list[i]
-                 
+
             else:
                 if match:
                     if change_type.lower() == 'null':
@@ -986,7 +1023,7 @@ class Toboggan:
 
             i+=1
         return in_list
-    
+
     def intake_changes(self):
         print(f"\n{self.sep}EDIT RESOURCES{self.sep}\n")
         print("Add or Delete any existing resources from the templates.\n")
@@ -1000,10 +1037,15 @@ class Toboggan:
                 self.role_names = [x['name'] for x in self.roles]
                 self.user_names = [x['name'] for x in self.users]
                 self.table_names = [x['name'] for x in self.tables]
+                self.external_table_names = [x['name'] for x in self.external_tables]
+                self.pipe_names = [x['name'] for x in self.pipes]
                 self.storage_integration_names = [x['name'] for x in self.storage_integrations]
                 self.stage_names = [x['name'] for x in self.stages]
+                self.task_names = [x['name'] for x in self.tasks]
+                self.stream_names = [x['name'] for x in self.streams]
 
-                choice = self.make_choices(['WAREHOUSES','DATABASES','ROLES','SCHEMAS','USERS', 'TABLES', 'INTEGRATIONS', 'STAGES', 'PIPES', 'SHARES'], "Which objects would you like to review?", mode="help")
+
+                choice = self.make_choices(['WAREHOUSES','DATABASES','ROLES','SCHEMAS','USERS', 'TABLES', 'EXTERNAL TABLES', 'INTEGRATIONS', 'STAGES', 'PIPES', 'SHARES'], "Which objects would you like to review?", mode="help")
                 if choice == "HELP":
                     print("\nChoose the type of object you'd like to go back and add to or delete from.\n")
                     continue
@@ -1038,7 +1080,7 @@ class Toboggan:
                             self.schemas = self.delete_resource(resource_name, self.schemas,'database', match=True)
                             self.users = self.delete_resource(resource_name, self.users, 'namespace', change_type='null', match=True)
                             self.tables = self.delete_resource(resource_name, self.tables, 'namespaces', match=True, nested=True, preserve=False)
-                            
+
                     elif choice == 'ROLES':
                         if edit_type == 'ADD':
                             self.roles = self.intake_roles()
@@ -1062,7 +1104,7 @@ class Toboggan:
                             self.schemas = self.delete_resource(resource_name, self.schemas, 'namespace')
                             self.users = self.delete_resource(resource_name, self.users, 'namespace', change_type='null', match=True)
                             self.tables = self.delete_resource(resource_name, self.tables, 'namespaces', match=True, nested=True, preserve=False)
-                            
+
                     elif choice == 'USERS':
                         if edit_type == 'ADD':
                             self.users = self.intake_users()
@@ -1073,23 +1115,23 @@ class Toboggan:
                             self.users = self.delete_resource(resource_name, self.users, 'name')
 
                     elif choice == 'TABLES':
-                        if edit_type == 'ADD': 
+                        if edit_type == 'ADD':
                             self.tables= self.intake_tables()
                         elif edit_type == 'DELETE':
                             resource_name = self.select_resource_name(choice, edit_type, self.table_names)
                             if not resource_name:
                                 continue
                             self.tables = self.delete_resource(resource_name, self.tables, 'name')
-                            
+
                     elif choice == 'INTEGRATIONS':
-                        if edit_type == 'ADD': 
+                        if edit_type == 'ADD':
                             self.storage_integrations = self.intake_storage_integrations()
                         elif edit_type == 'DELETE':
                             resource_name = self.select_resource_name(choice, edit_type, self.storage_integration_names)
                             if not resource_name:
                                 continue
                             self.storage_integrations = self.delete_resource(resource_name, self.storage_integrations, 'name')
-                            
+
                     elif choice == 'STAGES':
                         if edit_type == 'ADD':
                             self.stages = self.intake_stages()
@@ -1098,7 +1140,7 @@ class Toboggan:
                             if not resource_name:
                                 continue
                             self.stages = self.delete_resource(resource_name, self.stages, 'name')
-                            
+
                     elif choice == 'PIPES':
                         if edit_type == 'ADD':
                             self.pipes = self.intake_pipes()
@@ -1107,47 +1149,56 @@ class Toboggan:
                             if not resource_name:
                                 continue
                             self.pipes = self.delete_resource(resource_name, self.pipes, 'name')
+
+                    elif choice == 'EXTERNAL TABLES':
+                        if edit_type == 'ADD':
+                            self.tables= self.intake_external_tables()
+                        elif edit_type == 'DELETE':
+                            resource_name = self.select_resource_name(choice, edit_type, self.external_table_names)
+                            if not resource_name:
+                                continue
+                            self.tables = self.delete_resource(resource_name, self.external_tables, 'name')
             else:
                 break
-    
+
     def intake_queries(self):
         pass
-    
+
     ########################################## CREATE ##########################################
-    
+
     def create_sql(self, filename, template, objects):
         out_str = ""
-        
+
         for item in objects:
             out_str += template.render(item)
-            
+
         self.write_sql(filename, out_str)
-            
+
         return out_str
-    
+
     def create_warehouses_tf(self):
         """
         Add warehouses to main.tf
         self.warehouses : {'name':warehouse, 'warehouse_size':warehouse_size, 'auto_resume':auto_resume, 'auto_suspend':auto_suspend, 'comment':comment}
         """
-        
+
         out_str = ""
-        
+
         for item in self.warehouses:
             out_str += warehouse_template_tf.render(item) + "\n"
-        
+
         return out_str
-    
+
     def create_warehouses_sql(self):
         """
         Add warehouses to warehouse.sql
         self.warehouses : {'name':warehouse, 'warehouse_size':warehouse_size, 'auto_resume':auto_resume, 'auto_suspend':auto_suspend, 'comment':comment}
          filename, template, objects, fields
         """
-        
+
         out_str = "USE ROLE SYSADMIN;\n"
         out_str += self.create_sql('warehouses', warehouse_template_sql, self.warehouses)
-        
+
         return out_str
 
     def create_databases_tf(self):
@@ -1155,37 +1206,37 @@ class Toboggan:
         create roles.tf if not provided
         self.roles : [{'name': 'role_name', 'comment':'description'}]
         """
-        
+
         blob = """"""
-        
+
         for db in self.databases:
-            blob += database_template_tf.render(name=db['name'], 
+            blob += database_template_tf.render(name=db['name'],
                                                 comment=db['comment']
                                                )
-                                
+
         out_str = database_template_tf.render(blob=blob)
-        
+
         self.write_tf('databases', out_str)
-            
+
         return out_str
-            
+
     def create_databases_sql(self):
         """
         Create database.sql
         """
         out_str = "USE ROLE SYSADMIN;\n"
-        
+
         out_str += self.create_sql('databases', database_template_sql, self.databases)
         return out_str
-        
+
     def create_roles_tf(self):
         """
         create roles.tf if not provided
         self.roles : [{'name': 'role_name', 'comment':'description'}]
         """
-        
+
         role_blob = """"""
-        
+
         for role in self.roles:
             if role['name'] not in [x['name'] for x in self.default_roles]:
                 out_dict = role.copy()
@@ -1195,31 +1246,31 @@ class Toboggan:
                     if role['name'] in user['roles']:
                         out_dict['users'].append(user['name'])
                 role_blob += role_insert_template_tf.render(role=out_dict['name'], comment=out_dict['comment'], users=out_dict['users']).replace("'",'"')
-                                
+
         out_str = role_template_tf.render(role_blob=role_blob)
-        
+
         self.write_tf('roles', out_str)
-        
+
         return out_str
-    
+
     def create_roles_sql(self):
         """
         Add roles to roles.sql
         """
-        
+
         out_str = """USE ROLE ACCOUNTADMIN;\n"""
-                
+
         out_str += self.create_sql('roles', role_template_sql, [role for role in self.roles if role['name'] not in [x['name'] for x in self.default_roles]])
-        
+
         return out_str
-    
+
     def create_grants_sql(self, mode='schema'):
         """
         Handle associating roles with correct schemas or users.
         """
         out_str = """USE ROLE SYSADMIN;"""
-        
-        
+
+
         sec_admin_stmts = []
         if mode == 'schema':
             for role in self.role_names:
@@ -1227,94 +1278,93 @@ class Toboggan:
                     if role in schema['all_access']:
 
                         out_str += f"\nGRANT USAGE ON DATABASE {schema['database']} TO ROLE {role};\n"
-                        
+
                         out_str += f"\nGRANT ALL ON SCHEMA {schema['namespace']} TO ROLE {role};\n"
-                        
+
                         sec_admin_stmts.append(f"GRANT ALL ON FUTURE TABLES IN SCHEMA {schema['database']}.{schema['name']} TO ROLE {role};")
-                        
+
                     elif role in schema['usage_access']:
                         out_str += f"\nGRANT USAGE ON DATABASE {schema['database']} TO ROLE {role};\n"
                         out_str += f"\nGRANT USAGE ON SCHEMA {schema['namespace']} TO ROLE {role};\n"
-    
+
                         sec_admin_stmts.append(f"GRANT SELECT ON FUTURE TABLES IN SCHEMA {schema['namespace']} TO ROLE {role};")
-            
+
             out_str += "\nUSE ROLE SECURITYADMIN;\n"
             for s in sec_admin_stmts:
                 out_str += s + "\n"
-                                               
+
         else:
             for user in self.users:
                 for role in user['roles']:
                     out_str += f"GRANT ROLE {role} to USER {user['name']};\n"
-                out_string += f"GRANT USAGE, OPERATE ON WAREHOUSE {user['warehouse']} TO {user['name']};\n"
-        
+                out_str += f"GRANT USAGE, OPERATE ON WAREHOUSE {user['warehouse']} TO {user['name']};\n"
+
         return out_str
 
     def create_schemas_tf(self):
         """
         self.schemas : [{'name':name, 'comment':comment, 'database': database, 'usage_access':[roles], 'all_access':[roles]}]
         """
-            
+
         schema_blob = """"""
-            
+
         for item in self.schemas:
-            schema_blob += schema_insert_template_tf.render(schema=item['name'], 
-                                                         database=item['database'], 
-                                                         usage_roles=item['usage_access'], 
+            schema_blob += schema_insert_template_tf.render(schema=item['name'],
+                                                         database=item['database'],
+                                                         usage_roles=item['usage_access'],
                                                          all_roles=item['all_access']).replace("'",'"')
-                                
+
         out_str = schema_template_tf.render(schemas_blob=schema_blob)
-        
+
         self.write_tf('schemas', out_str)
-        
+
         return out_str
 
     def create_schemas_sql(self):
         """
         Add schemas to schemas.sql
         """
-        
+
         out_str = "USE ROLE SYSADMIN;\n"
-        
+
         out_str += self.create_sql('schemas', schema_template_sql, self.schemas)
-        
+
         return out_str
 
     def create_users_tf(self):
         """
-        self.users : [{name: None, warehouse: None, namespace: None}]
+        Create users.tf
         """
-        
+
         user_blob = """"""
-    
+
         for user in self.users:
             user_blob += user_insert_template_tf.render(name=user['name'], role=user['default_role'], namespace=user['namespace'], warehouse=user['warehouse']) + "\n"
-                                
+
         out_str = user_template_tf.render(user_blob=user_blob)
-        
+
         self.write_tf('users', out_str)
-        
+
         return out_str
-    
+
     def create_users_sql(self):
         """
         Add users to users.sql
-        user: {name: None, warehouse: None, namespace: None}
         """
-        
+
         out_str = "USE ROLE ACCOUNTADMIN;\n"
-        
+
         out_str += self.create_sql('users', user_template_sql, self.users)
-        
+
         return out_str
-    
+
     def create_tables_sql(self):
         """
-        Add users to tables.sql
+        Add tables to tables.sql
         """
-        
+
         out_str = """USE ROLE SYSADMIN;\n"""
-        
+
         for table in self.tables:
             table_blob = """"""
             for column in table['columns']:
@@ -1322,31 +1372,38 @@ class Toboggan:
             table_blob = table_blob[:-1]
             for namespace in table['namespaces']:
                 out_str += table_template_sql.render(name=table['name'], namespace=namespace, table_blob=table_blob)
-            
+
         self.write_sql('tables', out_str)
-        
+
         return out_str
-    
+
+    def create_external_tables_sql(self):
+        """
+        Add tables to external_tables.sql
+        """
+
+        out_str = """USE ROLE SYSADMIN;\n"""
+
+        for table in self.external_tables:
+            out_str += external_table_template_sql.render(table)
+
+        self.write_sql('external_tables', out_str)
+
+        return out_str
+
     def create_stages_sql(self):
+        """
+        Create stages.sql
+        """
         out_str = "USE ROLE SYSADMIN;\n"
-        
+
         out_str += self.create_sql('stages', external_stage_template, self.stages)
-        
+
         return out_str
-    
+
     def create_pipes_sql(self):
         """
-         create or replace pipe dev_pl_extract_reg_pipe auto_ingest=true as
-            copy into "DEV_DB"."RAW_LAYER"."EXTRACT_REGISTRATION" (raw_variant, filename)
-            from (
-              SELECT *, metadata$filename FROM @dev_pl_extract_reg_stage)
-            file_format = (type = 'parquet');
-            
-        create or replace pipe {{name}} auto_ingest={{auto_ingest}} as
-            copy into {{namespace}} {{columns}}
-            from (
-              {{query}} FROM @{{stage}})
-            file_format = (type = '{{file_format}}');
+        Create pipes.sql
         """
         out_str = "USE ROLE SYSADMIN;\n"
         for pipe in self.pipes:
@@ -1354,12 +1411,35 @@ class Toboggan:
 
         self.write_sql('pipes', out_str)
         return out_str
-    
+
+    def create_streams_sql(self):
+        """
+        Create streams.sql
+        """
+        out_str = "USE ROLE SYSADMIN;\n"
+        for stream in self.streams:
+            out_str += stream_template_sql.render(stream)
+
+        self.write_sql('streams', out_str)
+        return out_str
+
+    def create_tasks_sql(self):
+        """
+        Create tasks.sql
+        """
+        out_str = "USE ROLE SYSADMIN;\n"
+        for task in self.tasks:
+            out_str += task_template_sql.render(task)
+
+        self.write_sql('tasks', out_str)
+        return out_str
+
     def create_storage_integration_sql(self):
         """
+        Create storage_integrations.sql
         https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
         """
-        out_str = "\nUSE ROLE SYSADMIN;\n"
+        out_str = "\nUSE ROLE ACCOUNTADMIN;\n"
         for integration in self.storage_integrations:
             if integration['cloud'] == "AWS":
                 out_str += aws_storage_integration_template.render(integration)
@@ -1368,8 +1448,11 @@ class Toboggan:
                 #TODO: AZURE
         self.write_sql('integrations', out_str)
         return out_str
-    
+
     def create_main_sql(self, *args, **kwargs):
+        """
+        Create main.sql
+        """
 #         out_str = f"""USE ROLE {self.account_info['role']};"""
         print(f"\n{self.sep}MAIN SQL{self.sep}\n")
         out_str = f""""""
@@ -1377,64 +1460,71 @@ class Toboggan:
             out_str += arg + "\n"
 
         self.write_sql('main', out_str)
-        
+
         print(out_str)
         return out_str
-    
+
     def create_grants_file(self):
+        """
+        Create grants.sql
+        """
         out_str = ""
         out_str += self.create_grants_sql(mode='schema')
         out_str += self.create_grants_sql(mode='users')
-        
+
         self.write_sql('grants', out_str)
         return out_str
 
-    def create_main_tf(self): 
+    def create_main_tf(self):
         """
         create terraform main.tf
         """
-        
+
         out_str = main_template_tf.render(acct="YOUR_ACCT_NAME_HERE", region="YOUR_REGION_HERE")
-        
+
         out_str += self.create_warehouses_tf()
-        
+
         self.write_tf('main', out_str)
-        
+
         return out_str
-    
+
     def create_teardown_sql(self):
         out_str = "\nUSE ROLE ACCOUNTADMIN;\n"
         for warehouse in self.warehouses:
             out_str += teardown_template_sql.render(object_type="WAREHOUSE", name=warehouse['name'])
-        
+
         for database in self.databases:
             out_str += teardown_template_sql.render(object_type="DATABASE", name=database['name'])
-        
+
         for role in self.roles:
             if role['name'] not in [x['name'] for x in self.default_roles]:
                 out_str += teardown_template_sql.render(object_type="ROLE", name=role['name'])
-        
+
         for user in self.users:
             out_str += teardown_template_sql.render(object_type="USER", name=user['name'])
-            
+
         for stage in self.stages:
-            out_str += teardown_template_sql.render(object_type="STAGE", name=stage['name'])
-            
+            out_str += teardown_template_sql.render(object_type="STAGE", name=f'{stage["namespace"].split(".")[0]}.{stage["namespace"].split(".")[1]}.{stage["name"]}')
+
         for pipe in self.pipes:
-            out_str += teardown_template_sql.render(object_type="PIPE", name=pipe['name'])
-        
+            out_str += teardown_template_sql.render(object_type="PIPE", name=f'{pipe["namespace"].split(".")[0]}.{pipe["namespace"].split(".")[1]}.{pipe["name"]}')
+
+        for table in self.tables:
+            for namespace in table['namespaces']:
+                out_str += teardown_template_sql.render(object_type="TABLE", name=f'{namespace.split(".")[0]}.{namespace.split(".")[1]}.{table["name"]}')
+
         self.write_sql('teardown', out_str)
-        
+
         return out_str
-                
+
     def convert_sql(self, sql_syntax):
         """
         convert a query from another syntax to snow sql
         """
         pass
-    
+
     ########################################## RUN ##########################################
-    
+
     def run_queries(self, query, results_mode=False):
         if not self.account_info:
             self.account_info = self.intake_account_info()
@@ -1466,15 +1556,15 @@ class Toboggan:
 
         connection.close()
         engine.dispose()
-    
+
     def intake(self):
         """
         Main function combining intake and output
         """
-        
+
         # --------------------- INTAKE --------------------- #
         self.mode = self.choose_mode()
-        
+
         if self.mode == 'IMPORT':
             print(f"\n{self.sep}IMPORT MODE{self.sep}\n")
             self.set_out_dirs(mode='import')
@@ -1482,7 +1572,7 @@ class Toboggan:
                                             f'Import from json files in {self.in_out_path}/{self.json_out_dir}/'],
                                            "Would you like to import from a snowflake account connection or json files?"
                                            )
-            
+
             if import_mode == 'Import from sql connection to existing account.':
                 self.warehouses = self.read_snowflake('warehouses')
                 self.databases = self.read_snowflake('databases')
@@ -1493,6 +1583,9 @@ class Toboggan:
                 self.storage_integrations = self.read_snowflake('integrations')
                 self.stages = self.read_snowflake('stages')
                 self.pipes = self.read_snowflake('pipes')
+                self.external_tables = self.read_snowflake('external tables')
+                self.tasks = self.read_snowflake('tasks')
+                self.streams = self.read_snowflake('streams')
             else:
                 self.warehouses = self.read_json('warehouses')
                 self.databases = self.read_json('databases')
@@ -1503,15 +1596,18 @@ class Toboggan:
                 self.storage_integrations = self.read_json('integrations')
                 self.stages = self.read_json('stages')
                 self.pipes = self.read_json('pipes')
-            
+                self.external_tables = self.read_json('external_tables')
+                self.tasks = self.read_json('tasks')
+                self.streams = self.read_json('streams')
+
             print(f"{self.sep}Existing Warehouses{self.sep}\n")
             for x in self.warehouses:
                 print(json.dumps(x, indent=4))
-                
+
             print(f"{self.sep}Existing Database{self.sep}\n")
             for x in self.databases:
                 print(json.dumps(x, indent=4))
-                
+
             print(f"{self.sep}Existing Roles{self.sep}\n")
             for x in self.roles:
                 print(json.dumps(x, indent=4))
@@ -1523,23 +1619,34 @@ class Toboggan:
             print(f"{self.sep}Existing Users{self.sep}\n")
             for x in self.users:
                 print(json.dumps(x, indent=4))
-                
+
             print(f"{self.sep}Existing Tables{self.sep}\n")
             for x in self.tables:
                 print(json.dumps(x, indent=4))
-                
+
+            print(f"{self.sep}Existing External Tables{self.sep}\n")
+            for x in self.external_tables:
+                print(json.dumps(x, indent=4))
+
             print(f"{self.sep}Existing Integrations{self.sep}\n")
             for x in self.storage_integrations:
                 print(json.dumps(x, indent=4))
-            
+
             print(f"{self.sep}Existing Stages{self.sep}\n")
             for x in self.stages:
                 print(json.dumps(x, indent=4))
-                
+
             print(f"{self.sep}Existing Pipes{self.sep}\n")
             for x in self.pipes:
                 print(json.dumps(x, indent=4))
 
+            print(f"{self.sep}Existing Streams{self.sep}\n")
+            for x in self.streams:
+                print(json.dumps(x, indent=4))
+
+            print(f"{self.sep}Existing Tasks{self.sep}\n")
+            for x in self.tasks:
+                print(json.dumps(x, indent=4))
         else:
             print(f"\n{self.sep}CREATE MODE{self.sep}\n")
             self.set_out_dirs()
@@ -1552,19 +1659,38 @@ class Toboggan:
             self.storage_integrations = self.intake_storage_integrations()
             self.stages = self.intake_stages()
             self.pipes = self.intake_pipes()
-        
+            self.external_tables = self.intake_external_tables()
+            self.tasks = self.intake_tasks()
+            self.streams = self.intake_streams()
+
+        # de-duplicate lists
+        self.warehouses = [i for n, i in enumerate(self.warehouses) if i not in self.warehouses[n + 1:]]
+        self.roles = [i for n, i in enumerate(self.roles) if i not in self.roles[n + 1:]]
+        self.databases = [i for n, i in enumerate(self.databases) if i not in self.databases[n + 1:]]
+        self.schemas = [i for n, i in enumerate(self.schemas) if i not in self.schemas[n + 1:]]
+        self.users = [i for n, i in enumerate(self.users) if i not in self.users[n + 1:]]
+        self.tables = [i for n, i in enumerate(self.tables) if i not in self.tables[n + 1:]]
+        self.storage_integrations = [i for n, i in enumerate(self.storage_integrations) if i not in self.storage_integrations[n + 1:]]
+        self.stages = [i for n, i in enumerate(self.stages) if i not in self.stages[n + 1:]]
+        self.pipes = [i for n, i in enumerate(self.pipes) if i not in self.pipes[n + 1:]]
+        self.external_tables = [i for n, i in enumerate(self.external_tables) if i not in self.external_tables[n + 1:]]
+        self.streams = [i for n, i in enumerate(self.streams) if i not in self.streams[n + 1:]]
+        self.tasks = [i for n, i in enumerate(self.tasks) if i not in self.tasks[n + 1:]]
+
         # name updates
         self.warehouse_names = [x['name'] for x in self.warehouses]
         self.database_names = [x['name'] for x in self.databases]
         self.schema_names = [x['name'] for x in self.schemas]
-        self.namespaces = [f"{x['name']}.{x['database']}" for x in self.schemas]
+        self.namespaces = [x['namespace'] for x in self.schemas]
         self.role_names = [x['name'] for x in self.roles]
         self.user_names = [x['name'] for x in self.users]
         self.table_names = [x['name'] for x in self.tables]
+        self.external_table_names = [x['name'] for x in self.external_tables]
+        self.pipe_names = [x['name'] for x in self.pipes]
         self.storage_integration_names = [x['name'] for x in self.storage_integrations]
         self.stage_names = [x['name'] for x in self.stages]
-        self.pipe_names = [x['name'] for x in self.pipes]
-
+        self.steam_names = [x['name'] for x in self.streams]
+        self.task_names = [x['name'] for x in self.tasks]
         # EDIT MODE
         self.intake_changes()
 
@@ -1600,11 +1726,11 @@ class Toboggan:
             # Tables
             self.table_sql = self.create_tables_sql()
             self.write_json('tables', self.tables)
-            
+
             # Integrations
             self.integration_sql = self.create_storage_integration_sql()
             self.write_json('integrations', self.storage_integrations)
-            
+
             # Stages
             self.stage_sql = self.create_stages_sql()
             self.write_json('stages', self.stages)
@@ -1612,7 +1738,19 @@ class Toboggan:
             # Pipes
             self.pipe_sql = self.create_pipes_sql()
             self.write_json('pipes', self.pipes)
-            
+
+            # External Tables
+            self.external_tables_sql = self.create_external_tables_sql()
+            self.write_json('external_tables', self.external_tables)
+
+            # Streams
+            self.streams_sql = self.create_streams_sql()
+            self.write_json('streams', self.streams)
+
+            # Tasks
+            self.tasks_sql = self.create_tasks_sql()
+            self.write_json('tasks', self.tasks)
+
             # Main files
             self.grants_sql = self.create_grants_sql()
             self.main_tf = self.create_main_tf()
@@ -1625,13 +1763,16 @@ class Toboggan:
                                                  self.table_sql,
                                                  self.integration_sql,
                                                  self.stage_sql,
-                                                 self.pipe_sql
+                                                 self.pipe_sql,
+                                                 self.external_tables_sql,
+                                                 self.streams_sql,
+                                                 self.tasks_sql
                                                 )
-            
+
             self.teardown_sql = self.create_teardown_sql()
         else:
             print("Files not created.\n")
-        
+
         ans = self.yes_no("Would you like to run your main.sql file?")
         if ans:
             self.account_info = self.intake_account_info()
@@ -1639,19 +1780,11 @@ class Toboggan:
         else:
             print("Queries not run.\n")
 
-# In[ ]:
-
-
 if __name__ == '__main__':
     print("\nTOBOGGAN: Automating Snowflake Setup.\n")
     import time
     time.sleep(.1)
     T = Toboggan()
     T.intake()
-    T.main_create()
+    T.create()
     print("\nComplete.\n")
-
-# In[ ]:
-
-
-
