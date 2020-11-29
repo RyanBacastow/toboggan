@@ -175,11 +175,6 @@ class Toboggan:
             if self.in_out_path.lower() in ["default", ""]:
                 self.in_out_path = "."
 
-            # self.tf_out_dir = input(
-            #     f"\nWhere would you like your terraform files to read from and output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name if tf/\n")
-            # if self.tf_out_dir.lower() in ["default", ""]:
-            #     self.tf_out_dir = "tf"
-
             self.sql_out_dir = input(
                 f"\nWhere would you like your sql files to read from or output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name sql/\n")
             if self.sql_out_dir.lower() in ["default", ""]:
@@ -218,7 +213,7 @@ class Toboggan:
             else:
                 break
 
-        for folder in [self.tf_out_dir, self.sql_out_dir, self.json_out_dir]:
+        for folder in [self.sql_out_dir, self.json_out_dir]:
             self.create_dirs(f"{self.in_out_path}/{folder}")
 
     def read_json(self, file_name):
@@ -242,10 +237,6 @@ class Toboggan:
 
         return results
 
-    # def write_tf(self, filename, out_str):
-    #     with open(f'{self.in_out_path}/{self.tf_out_dir}/{filename}.tf', 'w+') as f:
-    #         f.write(out_str)
-
     def write_json(self, file_name, data):
         with open(f"{self.in_out_path}/{self.json_out_dir}/{file_name}.json", 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
@@ -258,7 +249,7 @@ class Toboggan:
 
     def intake_account_info(self):
         """
-        Takes the account name, region, login, and password. Sets the login and password for tf connection.
+        Takes the account name, region, login, and password. Sets the login and password for sql connection.
         """
         name = input("What is your snowflake account address?\n")
         region = input("What is your snowflake account region?\n")
@@ -1817,30 +1808,25 @@ class Toboggan:
 
     def create(self):
         # --------------------- DOC CREATION --------------------- #
-        ans = self.yes_no("Would you like to create the associated documents (sql, tf, json) for your infrastructure?")
+        ans = self.yes_no("Would you like to create the associated documents (sql,json) for your infrastructure?")
         if ans:
             # Warehouses
-            self.wh_tf = self.create_warehouses_tf()
             self.wh_sql = self.create_warehouses_sql()
             self.write_json('warehouses', self.warehouses)
 
             # DBs
-            self.db_tf = self.create_databases_tf()
             self.db_sql = self.create_databases_sql()
             self.write_json('databases', self.databases)
 
             # Roles
-            self.role_tf = self.create_roles_tf()
             self.role_sql = self.create_roles_sql()
             self.write_json('roles', self.roles)
 
             # Schemas
-            self.schema_tf = self.create_schemas_tf()
             self.schema_sql = self.create_schemas_sql()
             self.write_json('schemas', self.schemas)
 
             # Users
-            self.user_tf = self.create_users_tf()
             self.user_sql = self.create_users_sql()
             self.write_json('users', self.users)
 
@@ -1874,7 +1860,6 @@ class Toboggan:
 
             # Main files
             self.grants_sql = self.create_grants_sql()
-            self.main_tf = self.create_main_tf()
             self.main_sql = self.create_main_sql(self.role_sql,
                                                  self.wh_sql,
                                                  self.db_sql,

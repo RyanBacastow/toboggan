@@ -74,4 +74,6 @@ pip install -r requirements.txt
 python3 toboggan.py
 ```
 
+![main](imgs/main.png)
+
 This project is my Capstone creation from Northwestern University's Masters in Data Science program. Comments and contributors/forks welcome.
