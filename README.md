@@ -26,13 +26,14 @@ You can set up the snowflake infrastucture several different ways:
 3) Via import of existing snowflake infra using query tool. (Beta)
 
 #### Context
-The last 10 years of Data Architecture has been characterized by two competing visions:
-![happy_dumpster](imgs/happy_dumpster.png)
+The data architecture space since 2005 has been characterized by two competing visions:
 - Data Warehousing: Data is stored in highly structured, highly available, but unscalable and costly relational databases using open source tools or through vendors like Oracle, Teradata, etc.
 - Data Lakes: Hadoop, Apache Spark, and MongoDB were heralded as the tools that would democratize access to data across organizations at scale. Unfortunatley, the tools proved unwieldy for analysts and non data engineers to use at scale.
+![happy_dumpster](imgs/happy_dumpster.png)
 
-However, a rising third set of tools has been emerging in the past few years. This new wave of tools is built on a serverless approach to architecture giving users the value of structured, accessible, relational data, all at the cost of underlying data lake storage by leveraging the economies of scale provided by the major cloud providers.
-Some of the major breakthroughs in this appoach can be seen in:
+
+However, a new paradigm inpsired by the principles of serverless(pay as you go) computing has been taking root in the data warehousing world. A new set of tools built on a serverless approach to architecture is giving users the value of structured, accessible, and relational data at the cost of underlying data lake storage. They are accomplishing this new cost model for consumers by decoupling storage and compute and leveraging the economies of scale provided by the major cloud providers.
+Some of the major breakthroughs in this approach can be seen in:
 - Snowflake
 - Amazon Redshift
 - Google Big Query
