@@ -64,3 +64,9 @@ Features to be included in the next iteration of this project include:
 3) Lambda/Flask Zappa backend on AWS
 4) Azure setup automation
 
+#### To begin:
+```
+pip install -r requirements.txt
+python3 toboggan.py
+```
+
