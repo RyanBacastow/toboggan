@@ -1,0 +1,10 @@
+[
+    {
+        "name": "",
+        "namespace": "TEST_DB.TEST_SCHEMA",
+        "file_format": "PARQUET",
+        "stage": "TEST_STAGE",
+        "auto_refresh": "TRUE",
+        "comment": ""
+    }
+]

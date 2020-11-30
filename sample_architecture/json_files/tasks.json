@@ -1,0 +1,12 @@
+[
+    {
+        "name": "TEST_TASK",
+        "warehouse_name": "TEST_WH",
+        "namespace": "TEST_DB.TEST_SCHEMA",
+        "full_namespace": "TEST_DB.TEST_SCHEMA.TEST_TABLE",
+        "comment": "testing",
+        "schedule": "5 MINUTES",
+        "stream": "TEST_STREAM",
+        "select_statement": "SELECT *"
+    }
+]

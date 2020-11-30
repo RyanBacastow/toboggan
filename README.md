@@ -1,5 +1,7 @@
 # Toboggan
-Toboggan is a simple command line tool using python and json documents to simplify the data warehousing and migration process to snowflake by helping to automate:
+This project is my capstone project from Northwestern University's Masters in Data Science program. Comments and contributors/forks welcome.
+
+#### Toboggan is a simple command line tool using python and json documents to simplify the data warehousing and migration process to snowflake by helping to automate:
 - User creation
 - Role creation and management
 - Compute warehouse creation
@@ -7,7 +9,7 @@ Toboggan is a simple command line tool using python and json documents to simpli
 - Storage integration, external stage creation, external table creation
 - Stream, Pipe, and Task Creation
 
-## Context
+### Context
 The data architecture space since 2005 has been characterized by two competing visions:
 - Data Warehousing: Data is stored in highly structured, highly available, but unscalable and costly relational databases using open source tools or through vendors like Oracle, Teradata, etc.
 - Data Lakes: Hadoop, Apache Spark, and MongoDB were heralded as the tools that would democratize access to data across organizations at scale. Unfortunatley, the tools proved unwieldy for analysts and non data engineers to use at scale.
@@ -69,13 +71,15 @@ You can set up the snowflake infrastucture several different ways:
 	- warehouses.json
 3) Via import of existing snowflake infra using query tool. (Beta)
 
+
+![main](imgs/main.png)
+![demo](imgs/demo.png)
+
+#### There is also an edit mode provided for adding or deleting existing resources. Be aware that deleting an object such as a database or schema also deletes all objects contained by that object.
+![Edit](imgs/edit_mode.png)
+
 All methods are accessible via the cli. Simply run:
 ```
 pip install -r requirements.txt
 python3 toboggan.py
 ```
-
-![main](imgs/main.png)
-![demo](imgs/demo.png)
-
-This project is my Capstone creation from Northwestern University's Masters in Data Science program. Comments and contributors/forks welcome.

@@ -1225,7 +1225,7 @@ class Toboggan:
 
                 choice = self.make_choices(
                     ['WAREHOUSES', 'DATABASES', 'ROLES', 'SCHEMAS', 'USERS', 'TABLES', 'EXTERNAL TABLES',
-                     'INTEGRATIONS', 'STAGES', 'PIPES', 'TASKS', 'STREAMS', 'SHARES'],
+                     'INTEGRATIONS', 'STAGES', 'PIPES', 'TASKS', 'STREAMS'],
                     "Which objects would you like to review?", mode="help")
                 if choice == "HELP":
                     print("\nChoose the type of object you'd like to go back and add to or delete from.\n")

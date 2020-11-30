@@ -1,4 +1,3 @@
 jinja2
-terrascript
 snowflake-connector-Python
 snowflake-sqlalchemy
