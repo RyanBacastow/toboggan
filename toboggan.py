@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import jinja2
 import json
 import re
 import os
+import sys
 import snowflake as sf
 from sqlalchemy import create_engine
 from templates.templates import *
@@ -171,17 +171,17 @@ class Toboggan:
         """
         while True:
             self.in_out_path = input(
-                "\nWhat directory would you like to read from and save files to? Use relative or full path. Default is working dir. Dir should have extra directories with import files if present or else they will be created in dir.\n")
+                "What directory would you like to read from and save files to? Use relative or full path. Default is working dir. Dir should have extra directories with import files if present or else they will be created in dir.\n")
             if self.in_out_path.lower() in ["default", ""]:
                 self.in_out_path = "."
 
             self.sql_out_dir = input(
-                f"\nWhere would you like your sql files to read from or output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name sql/\n")
+                f"\nWhere would you like your sql files to read from or output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name is: sql\n")
             if self.sql_out_dir.lower() in ["default", ""]:
                 self.sql_out_dir = "sql"
 
             self.json_out_dir = input(
-                f"\nWhere would you like your json files to read from or output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name json_files/\n")
+                f"\nWhere would you like your json files to read from or output to within {self.in_out_path}? Use relative path from master dir where toboggan is running. Default dir name is: json_files/\n")
             if self.json_out_dir.lower() in ["default", ""]:
                 self.json_out_dir = "json_files"
 
@@ -1122,8 +1122,8 @@ class Toboggan:
                 print("IMPORT: Use the the json files in the self.json_out_dir directory to import existing resources.")
                 continue
             elif mode == 'CANCEL':
-                print("Must choose to either import or create new resources.")
-                continue
+                print("Goodbye!")
+                sys.exit()
             else:
                 return mode
 
@@ -1897,7 +1897,7 @@ class Toboggan:
 
 
 if __name__ == '__main__':
-    print("\nTOBOGGAN: Automating Snowflake Setup.\n")
+    print("\nTOBOGGAN: Automating Snowflake Setup.")
 
     T = Toboggan()
     T.intake()
