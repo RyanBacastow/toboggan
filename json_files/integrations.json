@@ -1,0 +1,13 @@
+[
+    {
+        "name": "TEST_INT",
+        "cloud": "AWS",
+        "integration_str": "arn:aws:iam::1234567891:role/test",
+        "enabled": "TRUE",
+        "storage_allowed_locations": [],
+        "storage_blocked_locations": [],
+        "storage_allowed_locations_str": "('*')",
+        "storage_blocked_locations_str": null,
+        "comment": "test"
+    }
+]

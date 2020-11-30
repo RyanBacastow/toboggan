@@ -1,0 +1,11 @@
+[
+    {
+        "name": "TEST_STAGE",
+        "integration": "TEST_INT",
+        "url": "s3://bucket/dir/subdir",
+        "file_format": "PARQUET",
+        "namespace": "TEST_DB.TEST_SCHEMA",
+        "database_name": "TEST_DB",
+        "schema_name": "TEST_SCHEMA"
+    }
+]

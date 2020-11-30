@@ -3,7 +3,7 @@
         "name": "TEST_WH",
         "warehouse_size": "XSMALL",
         "auto_resume": "true",
-        "auto_suspend": "300",
-        "comment": "Test warehouse deployment"
+        "auto_suspend": "60",
+        "comment": "test"
     }
 ]

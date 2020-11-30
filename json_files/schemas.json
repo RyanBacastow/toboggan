@@ -1,7 +1,7 @@
 [
     {
         "name": "TEST_SCHEMA",
-        "comment": "test schema deployment",
+        "comment": "test",
         "database": "TEST_DB",
         "namespace": "TEST_DB.TEST_SCHEMA",
         "usage_access": [],

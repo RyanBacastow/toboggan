@@ -44,9 +44,10 @@ Toboggan helps maintain the relationships of your snowflake objects and create D
 #### Future
 Features to be included in the next iteration of this project include: 
 1) Full query creation/integration
-2) Vue.js front end user experience
-3) Lambda/Flask Zappa backend on AWS
-4) Azure setup automation
+2) Modularization of code and unit test creation. Circle CI integration.
+3) Vue.js front end user experience
+4) Lambda/Flask Zappa backend on AWS
+5) Azure setup automation
 
 
 #### To begin:

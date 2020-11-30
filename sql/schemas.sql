@@ -1,4 +1,4 @@
 
 
 CREATE SCHEMA IF NOT EXISTS TEST_DB.TEST_SCHEMA
-COMMENT = 'test schema deployment';
+COMMENT = 'test';

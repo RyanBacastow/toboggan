@@ -618,14 +618,17 @@ class Toboggan:
             if ans:
                 namespace = self.make_choices(self.namespaces, f"Which namespace should {name} be added to?",
                                               mode='help')
-                if namespace == "HELP":
-                    print("Choose a database and schemas (namespace) that the table should belong to.")
-                elif namespace == "CANCEL":
-                    continue
+                if namespace not in namespaces:
+                    if namespace == "HELP":
+                        print("Choose a database and schemas (namespace) that the table should belong to.")
+                    elif namespace == "CANCEL":
+                        continue
+                    else:
+                        namespaces.append(namespace)
+                        print(f"Added {name} to {namespace}.")
+                        continue
                 else:
-                    namespaces.append(namespace)
-                    print(f"Added {name} to {namespace}.")
-                    continue
+                    print(f"{name} already added to namespace {namespace}.")
             else:
                 if len(namespaces) > 0:
                     break
@@ -980,7 +983,7 @@ class Toboggan:
 
                     out_dict['column_str'] = "(" + ', '.join([f"{x['column_name']}" for x in table['columns']]) + ")"
 
-                    query = input(f"What is the query you'd like to run in the pipe definition?")
+                    query = input(f"What is the query you'd like to run in the pipe definition?\n")
                     out_dict['query'] = query
 
                     file_format = self.make_choices(['PARQUET', 'JSON', 'AVRO', 'CSV', 'ORC', 'XML'],
@@ -1017,18 +1020,22 @@ class Toboggan:
 
                 table_name = self.make_choices(self.table_names, f"What table should {name} be created on?")
 
-                table = [x for x in self.tables if x['name'] == 'table_name'][0]
+                table = [x for x in self.tables if x['name'] == table_name][0]
 
                 namespace = self.make_choices(table['namespaces'], f"What namespace does {name} belong to?")
 
                 out_dict['namespace'] = namespace
                 full_namespace = f"{namespace}.{table_name}"
 
-                append_only = self.make_choices(['TRUE', 'FALSE'],
+                append_only = self.make_choices(['FALSE', 'TRUE'],
                                                 f"Is {name} an append only stream? Default is usually false.")
 
-                stream = {"name": name, "full_namespace": full_namespace, "namespace": namespace,
-                          "append_only": append_only}
+                stream = {"name": name,
+                          "full_namespace": full_namespace,
+                          "namespace": namespace,
+                          "append_only": append_only
+                          }
+
                 streams.append(stream)
 
             else:
@@ -1041,10 +1048,12 @@ class Toboggan:
         see https://docs.snowflake.com/en/sql-reference/sql/create-task.html
         """
         tasks = self.tasks.copy()
+        print(f"\n{self.sep}TASKS{self.sep}\n")
+        print("Add task objects.\n")
 
         # TODO: ADD CRON SYNTAX INTAKE
         while True:
-            ans = self.yes_no("Do you want to add a stream?")
+            ans = self.yes_no("Do you want to add a task?")
 
             if ans:
                 out_dict = {

@@ -1,0 +1,8 @@
+[
+    {
+        "name": "TEST_STREAM",
+        "full_namespace": "TEST_DB.TEST_SCHEMA.TEST_TABLE",
+        "namespace": "TEST_DB.TEST_SCHEMA",
+        "append_only": "FALSE"
+    }
+]

@@ -8,12 +8,8 @@
             {
                 "column_name": "TEST_COLUMN",
                 "column_type": "NUMBER"
-            },
-            {
-                "column_name": "TEST_COLUMN_2",
-                "column_type": "VARCHAR"
             }
         ],
-        "comment": "testing table and column deployment"
+        "comment": "test"
     }
 ]
